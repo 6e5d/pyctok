@@ -4,31 +4,44 @@ importer("../../pycdb/pycdb", __file__)
 import itertools
 from pycdb import binop, prefixop
 
-ps = {"(": 41, ")": 42, "[": 43, "]": 44, "{": 45, "}": 46}
+ps = {"(": 41, ")": 42, "[": 43, "]": 44, "{": 45, "}": 46, ";": 47}
 
 class Tokenizer():
 	def __init__(self):
-		self.prev = 0
 		self.current = 0
 		self.toks = []
 		self.pending = []
 		self.escape = False
 	def flush(self):
 		if self.pending:
-			self.toks.append((self.current, "".join(self.pending)))
+			s = "".join(self.pending)
+			self.toks.append((self.current, s))
 			self.pending = []
-			self.prev = self.current
 		self.current = 0
 	def peek(self, s):
 		if len(s) >= 2:
 			return s[1]
 		else:
 			return None
-	def andand(self, s):
+	def prev(self, x):
+		if x > len(self.toks):
+			return 0
+		return self.toks[-x][0]
+	def testbin(self, s):
 		ch = s[0]
-		if self.prev in [42, 44] or (
-			self.prev >= 10 and self.prev < 30
-		):
+		# the asterisk ambiguity is circumvented by disallowing
+		# multiplication at beginning of a statement
+		# corner cases handled: a *= b, a ** b
+		if ch == "*":
+			p2 = self.prev(2)
+			if p2 == 45 or p2 == 47:
+				self.current = 31
+				self.flush()
+			else:
+				self.current = 32
+				self.flush()
+		p1 = self.prev(1)
+		if p1 in [42, 44] or p1 >= 10 and p1 < 30:
 			self.current = 32
 		else:
 			self.current = 31
@@ -63,9 +76,10 @@ class Tokenizer():
 		elif ch == ".":
 			if self.current != 11:
 				self.flush()
+				self.pending.append(ch)
+				self.current = 32
+				self.flush()
 			self.pending.append(ch)
-			self.current = 34
-			self.flush()
 		elif ch.isalnum() or ch in "_":
 			if self.current >= 10 and self.current < 30:
 				self.pending.append(ch)
@@ -86,22 +100,17 @@ class Tokenizer():
 			if ch == "<" or ch == ">":
 				p = self.peek(s)
 				if p == "=":
-					self.current = 33
+					self.current = 32
 					return
 			self.flush()
 		else:
 			self.flush()
 			self.pending.append(ch)
 			p = self.peek(s)
-			if p != None and f"{ch}{p}" in binop and p != "&":
+			if p != None and f"{ch}{p}" in binop:
 				self.current = 32
 				return
-			if ch == "&" and p == "&":
-				self.andand(s)
-				return
-			if ch in prefixop:
-				self.current = 31
-				self.flush()
+			self.testbin(s)
 	def tokenize(self, s):
 		s = list(s)
 		for idx in range(len(s)):

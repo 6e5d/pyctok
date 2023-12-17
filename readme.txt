@@ -15,10 +15,8 @@ actually check previous symbol is sufficient.
 	* char
 * identifier
 * operator
-	* unary (+ - & * ! ~)
+	* unary (+ - & ! ~)
 	* binary (arith, bit, logical, relation)
-	* assign
-	* struct (. ->)
 * parentheses
 	* (
 	* )
