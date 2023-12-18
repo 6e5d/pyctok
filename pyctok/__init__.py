@@ -32,14 +32,6 @@ class Tokenizer():
 		# the asterisk ambiguity is circumvented by disallowing
 		# multiplication at beginning of a statement
 		# corner cases handled: a *= b, a ** b
-		if ch == "*":
-			p2 = self.prev(2)
-			if p2 == 45 or p2 == 47:
-				self.current = 31
-				self.flush()
-			else:
-				self.current = 32
-				self.flush()
 		p1 = self.prev(1)
 		if p1 in [42, 44] or p1 >= 10 and p1 < 30:
 			self.current = 32
@@ -74,12 +66,13 @@ class Tokenizer():
 				return
 			self.flush()
 		elif ch == ".":
-			if self.current != 11:
-				self.flush()
+			if self.current == 11:
 				self.pending.append(ch)
-				self.current = 32
-				self.flush()
+				return
+			self.flush()
 			self.pending.append(ch)
+			self.current = 32
+			self.flush()
 		elif ch.isalnum() or ch in "_":
 			if self.current >= 10 and self.current < 30:
 				self.pending.append(ch)
@@ -87,8 +80,10 @@ class Tokenizer():
 			self.flush()
 			if ch.isdigit():
 				self.current = 11
-			else:
+			elif ch.isupper():
 				self.current = 21
+			else:
+				self.current = 22
 			self.pending.append(ch)
 		elif ch in ps:
 			self.flush()
@@ -109,6 +104,10 @@ class Tokenizer():
 			p = self.peek(s)
 			if p != None and f"{ch}{p}" in binop:
 				self.current = 32
+				return
+			if ch == "*": # *= should be already excluded
+				self.current = 33
+				self.flush()
 				return
 			self.testbin(s)
 	def tokenize(self, s):

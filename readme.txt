@@ -14,9 +14,12 @@ actually check previous symbol is sufficient.
 	* string
 	* char
 * identifier
+	* type
+	* var
 * operator
 	* unary (+ - & ! ~)
 	* binary (arith, bit, logical, relation)
+	* deref or mul(*)
 * parentheses
 	* (
 	* )
