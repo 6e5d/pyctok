@@ -4,7 +4,7 @@ importer("../../pycdb/pycdb", __file__)
 import itertools
 from pycdb import binop, prefixop
 
-ps = {"(": 41, ")": 42, "[": 43, "]": 44, "{": 45, "}": 46, ";": 47}
+ps = {"(": 41, ")": 42, "[": 43, "]": 44, "{": 45, "}": 46, ";": 47, ",": 34}
 
 class Tokenizer():
 	def __init__(self):
@@ -73,7 +73,7 @@ class Tokenizer():
 			self.pending.append(ch)
 			self.current = 32
 			self.flush()
-		elif ch.isalnum() or ch in "_":
+		elif ch.isalnum() or ch == "_":
 			if self.current >= 10 and self.current < 30:
 				self.pending.append(ch)
 				return

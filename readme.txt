@@ -20,6 +20,7 @@ actually check previous symbol is sufficient.
 	* unary (+ - & ! ~)
 	* binary (arith, bit, logical, relation)
 	* deref or mul(*)
+	* argument separator or comma op
 * parentheses
 	* (
 	* )
