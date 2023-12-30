@@ -115,3 +115,6 @@ class Tokenizer():
 		for idx in range(len(s)):
 			self.go(s[idx:])
 		self.flush()
+		toks = self.toks
+		self.toks = []
+		return toks
