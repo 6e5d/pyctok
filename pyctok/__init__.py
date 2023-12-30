@@ -73,6 +73,10 @@ class Tokenizer():
 			self.pending.append(ch)
 			self.current = 32
 			self.flush()
+		elif self.current == 11 and ch == "-" and\
+			self.pending[-1] in "eE":
+			self.pending.append(ch)
+			return
 		elif ch.isalnum() or ch == "_":
 			if self.current >= 10 and self.current < 30:
 				self.pending.append(ch)
